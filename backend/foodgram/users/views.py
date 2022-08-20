@@ -1,21 +1,18 @@
-from django.contrib.auth import get_user_model
 import djoser.views
-from rest_framework import status
-from rest_framework.generics import get_object_or_404
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.serializers import ListSerializer
-
-from .serializers import (
-    CreateUserSerializer,
-    TokenObtainSerializer,
-    UserSerializer,
-)
+from django.contrib.auth import get_user_model
 from recipes.models import Subscribe
 from recipes.serializers import SubscribeSerializer
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.serializers import ListSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .serializers import (CreateUserSerializer, TokenObtainSerializer,
+                          UserSerializer)
 
 User = get_user_model()
 

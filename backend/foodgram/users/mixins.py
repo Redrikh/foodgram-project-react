@@ -1,7 +1,6 @@
+from recipes.models import Subscribe
 from rest_framework import serializers
 from rest_framework.serializers import Serializer
-
-from recipes.models import Subscribe
 
 
 class IsSubscribedMixin(Serializer):
