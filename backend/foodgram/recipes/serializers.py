@@ -4,8 +4,16 @@ from rest_framework import serializers, validators
 from users.mixins import IsSubscribedMixin
 from users.serializers import UserSerializer
 
-from .models import (FavoriteRecipe, Ingredient, IngredientsRecipe, Recipe,
-                     ShoppingCart, Subscribe, Tag, TagsRecipe)
+from .models import (
+    FavoriteRecipe,
+    Ingredient,
+    IngredientsRecipe,
+    Recipe,
+    ShoppingCart,
+    Subscribe,
+    Tag,
+    TagsRecipe,
+)
 
 User = get_user_model()
 
@@ -98,6 +106,24 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return user.shopping_cart.filter(recipe=obj).exists()
 
+    def create_tags(self, recipe, tags):
+        TagsRecipe.objects.bulk_create(
+            [TagsRecipe(
+                recipe=recipe,
+                tag=Tag.objects.get(id=tag),
+            ) for tag in tags]
+        )
+
+    def create_ingredients(self, recipe, ingredients):
+        IngredientsRecipe.objects.bulk_create(
+            [IngredientsRecipe(
+                recipe=recipe,
+                ingredient=Ingredient.objects.get(id=ingredient['id']),
+                amount=ingredient['amount'],
+            ) for ingredient in ingredients]
+        )
+
+
     def create(self, validated_data):
         context = self.context['request']
         validated_data.pop('recipe_ingredients')
@@ -106,19 +132,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             author=self.context.get('request').user
         )
         tags = context.data['tags']
-        for tag in tags:
-            TagsRecipe.objects.create(
-                recipe=recipe,
-                tag=Tag.objects.get(id=tag)
-            )
+        self.create_tags(recipe, tags)
         ingredients = context.data['ingredients']
-        for ingredient in ingredients:
-            ingredient_model = Ingredient.objects.get(id=ingredient['id'])
-            IngredientsRecipe.objects.create(
-                recipe=recipe,
-                ingredient=ingredient_model,
-                amount=ingredient['amount'],
-            )
+        self.create_ingredients(recipe, ingredients)
         return recipe
 
     def update(self, recipe, validated_data):
@@ -134,19 +150,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         recipe.save()
         tags = context.data['tags']
         TagsRecipe.objects.filter(recipe=recipe).delete()
-        for tag in tags:
-            TagsRecipe.objects.create(
-                recipe=recipe,
-                tag=Tag.objects.get(id=tag)
-            )
-        IngredientsRecipe.objects.filter(recipe=recipe).delete()
+        self.create_tags(recipe, tags)
         ingredients = context.data['ingredients']
-        for ingredient in ingredients:
-            IngredientsRecipe.objects.create(
-                recipe=recipe,
-                ingredient=Ingredient.objects.get(id=ingredient['id']),
-                amount=ingredient['amount'],
-            )
+        IngredientsRecipe.objects.filter(recipe=recipe).delete()
+        self.create_ingredients(recipe, ingredients)
         return recipe
 
 
@@ -176,7 +183,7 @@ class FavoritedSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Нельзя добавить в избранное свой рецепт.'
             )
-        if (FavoriteRecipe.objects.filter(recipe=recipe, user=user).exists()):
+        if FavoriteRecipe.objects.filter(recipe=recipe, user=user).exists():
             raise serializers.ValidationError('Рецепт уже в избранном.')
         return data
 

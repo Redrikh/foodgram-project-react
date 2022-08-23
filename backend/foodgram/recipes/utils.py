@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from .models import ShoppingCart
 
 
-def get_shopping_list(request):
-    shopping_cart = ShoppingCart.objects.filter(user=request.user).all()
+def get_shopping_list(user):
+    shopping_cart = ShoppingCart.objects.filter(user=user).all()
     shopping_list = {}
     for item in shopping_cart:
         for recipe_ingredient in item.recipe.recipe_ingredients.all():

@@ -23,13 +23,13 @@ class CreateUserSerializer(serializers.ModelSerializer):
         model = User
 
     def validate_username(self, value):
-        if value == 'me':
+        prohibited_names = (
+            'me',
+            'admin',
+        )
+        if value in prohibited_names:
             raise serializers.ValidationError(
-                'Using name "me" is prohibited!'
-            )
-        if value == 'admin':
-            raise serializers.ValidationError(
-                'Using name "admin" is prohibited!'
+                f'Using name {value} is prohibited!'
             )
         return value
 

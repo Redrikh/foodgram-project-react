@@ -2,16 +2,22 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import (
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 
 from .filters import RecipeFilter
 from .models import FavoriteRecipe, Ingredient, Recipe, ShoppingCart, Tag
 from .permissions import AuthorOrReadOnly
-from .serializers import (FavoritedSerializer, IngredientSerializer,
-                          RecipeSerializer, ShoppingCartSerializer,
-                          TagSerializer)
+from .serializers import (
+    FavoritedSerializer,
+    IngredientSerializer,
+    RecipeSerializer,
+    ShoppingCartSerializer,
+    TagSerializer,
+)
 from .utils import get_shopping_list
 
 
@@ -24,14 +30,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['GET', 'DELETE'],
+        methods=['POST', 'DELETE'],
         permission_classes=[IsAuthenticatedOrReadOnly],
         url_path='favorite'
     )
     def favorite(self, request, pk):
         recipe = get_object_or_404(Recipe, pk=pk)
         user = request.user
-        if request.method == 'GET':
+        if request.method == 'POST':
             favorite_recipe, created = FavoriteRecipe.objects.get_or_create(
                 user=user, recipe=recipe
             )
@@ -42,10 +48,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_201_CREATED
                 )
         if request.method == 'DELETE':
+            deleted = FavoriteRecipe.objects.filter(
+                user=user,
+                recipe=recipe
+            )
             FavoriteRecipe.objects.filter(
                 user=user,
                 recipe=recipe
             ).delete()
+            if FavoriteRecipe.objects.filter(
+                user=user,
+                recipe=recipe
+            ) == deleted:
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -61,7 +76,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe, created = ShoppingCart.objects.get_or_create(
                 user=user, recipe=recipe
             )
-            if created is True:
+            if created:
                 serializer = ShoppingCartSerializer()
                 return Response(
                     serializer.to_representation(instance=recipe),
@@ -72,10 +87,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_201_CREATED
             )
         if request.method == 'DELETE':
+            deleted = ShoppingCart.objects.filter(
+                user=user,
+                recipe=recipe,
+            )
             ShoppingCart.objects.filter(
                 user=user,
                 recipe=recipe,
             ).delete()
+            if ShoppingCart.objects.filter(
+                user=user,
+                recipe=recipe
+            ) == deleted:
+                return Response(status=status.HTTP_304_NOT_MODIFIED)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -87,7 +111,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         try:
-            return get_shopping_list(request)
+            return get_shopping_list(request.user)
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
