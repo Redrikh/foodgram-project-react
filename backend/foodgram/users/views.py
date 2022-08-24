@@ -57,11 +57,11 @@ class UserViewSet(djoser.views.UserViewSet):
                 status=status.HTTP_201_CREATED
             )
         if request.method == 'DELETE':
-            deleted = Subscribe.objects.filter(
+            deleted, _ = Subscribe.objects.filter(
                 user=subscriber,
                 subscribing=subscribing,
             ).delete()
-            if deleted[0] == 0:
+            if deleted == 0:
                 return Response(status=status.HTTP_304_NOT_MODIFIED)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
