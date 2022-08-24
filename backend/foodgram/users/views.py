@@ -39,9 +39,10 @@ class UserViewSet(djoser.views.UserViewSet):
         subscriber = request.user
 
         if request.method == 'POST':
-            subscribed = (Subscribe.objects.filter(
-                subscribing=subscribing, user=subscriber).exists()
-            )
+            subscribed = Subscribe.objects.filter(
+                subscribing=subscribing,
+                user=subscriber,
+            ).exists()
             if subscribed:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             Subscribe.objects.get_or_create(
@@ -59,15 +60,8 @@ class UserViewSet(djoser.views.UserViewSet):
             deleted = Subscribe.objects.filter(
                 user=subscriber,
                 subscribing=subscribing,
-            )
-            Subscribe.objects.filter(
-                user=subscriber,
-                subscribing=subscribing,
             ).delete()
-            if Subscribe.objects.filter(
-                user=subscriber,
-                subscribing=subscribing,
-            ) == deleted:
+            if deleted[0] == 0:
                 return Response(status=status.HTTP_304_NOT_MODIFIED)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)

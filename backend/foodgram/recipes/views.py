@@ -51,15 +51,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             deleted = FavoriteRecipe.objects.filter(
                 user=user,
                 recipe=recipe
-            )
-            FavoriteRecipe.objects.filter(
-                user=user,
-                recipe=recipe
             ).delete()
-            if FavoriteRecipe.objects.filter(
-                user=user,
-                recipe=recipe
-            ) == deleted:
+            if deleted[0] == 0:
                 return Response(status=status.HTTP_304_NOT_MODIFIED)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -90,15 +83,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             deleted = ShoppingCart.objects.filter(
                 user=user,
                 recipe=recipe,
-            )
-            ShoppingCart.objects.filter(
-                user=user,
-                recipe=recipe,
             ).delete()
-            if ShoppingCart.objects.filter(
-                user=user,
-                recipe=recipe
-            ) == deleted:
+            if deleted[0] == 0:
                 return Response(status=status.HTTP_304_NOT_MODIFIED)
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
