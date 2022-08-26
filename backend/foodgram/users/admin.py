@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 
 from recipes.models import (
     Ingredient,
@@ -23,11 +24,15 @@ class TagsInline(admin.TabularInline):
     extra = 1
 
 
-class UsersAdmin(admin.ModelAdmin):
+@admin.register(User)
+class UsersAdmin(UserAdmin):
     list_display = ('username', 'password', 'first_name', 'last_name', 'email')
     list_filter = ('username', 'email')
     search_fields = ('username', 'email')
     empty_value_display = "-пусто-"
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {'fields': ('email', 'first_name', 'last_name')}),
+    )
 
 
 class FollowsAdmin(admin.ModelAdmin):
@@ -71,7 +76,6 @@ class IngredientsAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-admin.site.register(User, UsersAdmin)
 admin.site.register(Subscribe, FollowsAdmin)
 admin.site.register(Recipe, RecipesAdmin)
 admin.site.register(Tag, TagsAdmin)

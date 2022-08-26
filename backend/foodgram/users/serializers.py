@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, validators
@@ -32,6 +33,15 @@ class CreateUserSerializer(serializers.ModelSerializer):
                 f'Using name {value} is prohibited!'
             )
         return value
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['password'])
+        instance.save()
+        return instance
+
+    def create(self, validated_data):
+        password = make_password(validated_data.pop('password'))
+        return User.objects.create(password=password, **validated_data)
 
 
 class TokenObtainSerializer(TokenObtainPairSerializer):
