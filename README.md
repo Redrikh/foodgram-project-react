@@ -1,6 +1,6 @@
 # Foodgram, «Продуктовый помощник»
 
-[![Django-app workflow](https://github.com/Redrikh/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)](https://github.com/Redrikh/foodgram-project-react/actions/workflows/yamdb_workflow.yml)
+[![Django-app workflow](https://github.com/Redrikh/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/Redrikh/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
 
 ***
 Тестовый проект доступен по адресу: http://130.193.52.11/
