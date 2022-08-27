@@ -28,7 +28,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_class = RecipeFilter
     serializer_class = RecipeSerializer
     permission_classes = [AuthorOrReadOnly]
-    pagination_class = LimitOffsetPagination
 
     @action(
         detail=True,

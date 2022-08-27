@@ -138,7 +138,6 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update(self, recipe, validated_data):
         context = self.context['request']
-        validated_data.pop('recipe_ingredients')
         recipe.name = validated_data.get('name', recipe.name)
         recipe.text = validated_data.get('text', recipe.text)
         recipe.cooking_time = validated_data.get(
