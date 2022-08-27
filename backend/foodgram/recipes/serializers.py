@@ -123,7 +123,6 @@ class RecipeSerializer(serializers.ModelSerializer):
             ) for ingredient in ingredients]
         )
 
-
     def create(self, validated_data):
         context = self.context['request']
         validated_data.pop('recipe_ingredients')
@@ -254,22 +253,6 @@ class SubscribeSerializer(serializers.ModelSerializer, IsSubscribedMixin):
             'recipes_count',
             'is_subscribed',
         ]
-
-    def validate(self, data):
-        author = data['subscribing']
-        user = data['subscriber']
-        if user == author:
-            raise serializers.ValidationError('Нельзя подписаться на себя.')
-        if (Subscribe.objects.filter(author=author, user=user).exists()):
-            raise serializers.ValidationError(
-                'Вы уже подписаны на этого пользователя.'
-            )
-        return data
-
-    def create(self, validated_data):
-        subscribe = Subscribe.objects.create(**validated_data)
-        subscribe.save()
-        return subscribe
 
     def get_recipes_count(self, data):
         return Recipe.objects.filter(author=data).count()

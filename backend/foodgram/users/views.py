@@ -1,4 +1,3 @@
-import re
 import djoser.views
 from django.contrib.auth import get_user_model
 from recipes.models import Subscribe
@@ -6,15 +5,11 @@ from recipes.serializers import SubscribeSerializer
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.serializers import ListSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .serializers import (
     CreateUserSerializer,
-    TokenObtainSerializer,
     UserSerializer,
 )
 
@@ -40,13 +35,11 @@ class UserViewSet(djoser.views.UserViewSet):
         subscriber = request.user
 
         if request.method == 'POST':
-            if subscriber == subscribing:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
             subscribed = Subscribe.objects.filter(
                 author=subscribing,
                 user=subscriber,
             ).exists()
-            if subscribed:
+            if subscribed or subscriber == subscribing:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             Subscribe.objects.get_or_create(
                 user=subscriber,
@@ -85,8 +78,3 @@ class UserViewSet(djoser.views.UserViewSet):
             context={'request':request}
         )
         return self.get_paginated_response(serializer.data)
-
-
-class TokenObtainView(TokenObtainPairView):
-    """Получение токена."""
-    serializer_class = TokenObtainSerializer

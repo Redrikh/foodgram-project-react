@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: isturnell/foodgram:v0.6
+    image: isturnell/foodgram:latest
     restart: always
     volumes:
       - static_value:/app/static/
