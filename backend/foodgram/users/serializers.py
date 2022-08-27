@@ -11,6 +11,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     """Сериализатор для создания пользователя."""
     class Meta:
         fields = (
+            'id',
             'email',
             'username',
             'first_name',
@@ -51,8 +52,8 @@ class UserSerializer(serializers.ModelSerializer, IsSubscribedMixin):
 
     class Meta:
         fields = [
-            'email',
             'id',
+            'email',
             'username',
             'first_name',
             'last_name',
