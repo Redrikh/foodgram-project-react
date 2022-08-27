@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from .filters import RecipeFilter, IngredientFilter
 from .models import FavoriteRecipe, Ingredient, Recipe, ShoppingCart, Tag
+from .pagination import RecipePagination
 from .permissions import AuthorOrReadOnly
 from .serializers import (
     FavoritedSerializer,
@@ -28,6 +29,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_class = RecipeFilter
     serializer_class = RecipeSerializer
     permission_classes = [AuthorOrReadOnly]
+    pagination_class = RecipePagination
 
     @action(
         detail=True,
