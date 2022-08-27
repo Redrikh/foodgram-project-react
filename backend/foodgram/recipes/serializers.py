@@ -61,12 +61,25 @@ class TagSerializer(serializers.ModelSerializer):
         lookup_field = 'slug'
 
 
+class TagsRecipeSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        source='tag.id',
+    )
+    name = serializers.CharField(
+        read_only=True,
+        source='tag.name'
+    )
+    model = TagsRecipe
+    fields = ('__all__')
+
+
 class CreateRecipeSerializer(serializers.ModelSerializer):
     name = serializers.CharField(
         required=True,
     )
     author = UserSerializer(read_only=True)
-    tags = TagSerializer(
+    tag = TagSerializer(
         read_only=True,
         many=True,
     )
@@ -185,6 +198,10 @@ class RecipeSerializer(serializers.ModelSerializer):
         if not request or request.user.is_anonymous:
             return False
         return user.shopping_cart.filter(recipe=obj).exists()
+
+    def to_representation(self, instance):
+        response = super(RecipeSerializer, self).to_representation(instance)
+        return response
 
 
 class FavoritedSerializer(serializers.ModelSerializer):

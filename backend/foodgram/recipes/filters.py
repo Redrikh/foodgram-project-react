@@ -14,11 +14,9 @@ class IngredientFilter(filters.FilterSet):
 
 class RecipeFilter(filters.FilterSet):
     """Фильтр для рецептов."""
-    tags = filters.filters.ModelMultipleChoiceFilter(
-        queryset=Tag.objects.all(),
+    tags = filters.AllValuesMultipleFilter(
         field_name='tags__slug',
-        to_field_name='slug',
-    )
+        )
     author = filters.CharFilter(lookup_expr='exact')
     is_in_shopping_cart = filters.BooleanFilter(
         field_name='is_in_shopping_cart',
