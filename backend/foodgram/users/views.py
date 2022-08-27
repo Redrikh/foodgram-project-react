@@ -75,6 +75,7 @@ class UserViewSet(djoser.views.UserViewSet):
         serializer = SubscribeSerializer(
             authors,
             many=True,
-            context={'request':request}
+            context={'request': request}
         )
+        print(serializer.data)
         return self.get_paginated_response(serializer.data)

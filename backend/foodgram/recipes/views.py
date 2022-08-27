@@ -10,12 +10,12 @@ from rest_framework.response import Response
 
 from .filters import RecipeFilter, IngredientFilter
 from .models import FavoriteRecipe, Ingredient, Recipe, ShoppingCart, Tag
-from .pagination import RecipePagination
 from .permissions import AuthorOrReadOnly
 from .serializers import (
     FavoritedSerializer,
     IngredientSerializer,
     RecipeSerializer,
+    CreateRecipeSerializer,
     ShoppingCartSerializer,
     TagSerializer,
 )
@@ -26,15 +26,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend]
     filter_class = RecipeFilter
-    serializer_class = RecipeSerializer
     permission_classes = [AuthorOrReadOnly]
-    pagination_class = RecipePagination
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return RecipeSerializer
+        return CreateRecipeSerializer
 
     def perform_create(self, serializer):
-        return serializer.save()
-
-    def perform_update(self, serializer):
-        return serializer.save()
+        user = self.request.user
+        serializer.save(author=user)
 
     @action(
         detail=True,
