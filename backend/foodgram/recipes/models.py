@@ -124,7 +124,7 @@ class IngredientsRecipe(models.Model):
 
 class Subscribe(models.Model):
     """Модель для подписок."""
-    subscribing = models.ForeignKey(
+    author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='subscribing'
@@ -137,7 +137,7 @@ class Subscribe(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(
-            fields=['subscribing', 'user'],
+            fields=['author', 'user'],
             name='unique_object',
         )]
 

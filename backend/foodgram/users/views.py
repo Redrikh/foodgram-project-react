@@ -1,3 +1,4 @@
+import re
 import djoser.views
 from django.contrib.auth import get_user_model
 from recipes.models import Subscribe
@@ -39,15 +40,17 @@ class UserViewSet(djoser.views.UserViewSet):
         subscriber = request.user
 
         if request.method == 'POST':
+            if subscriber == subscribing:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             subscribed = Subscribe.objects.filter(
-                subscribing=subscribing,
+                author=subscribing,
                 user=subscriber,
             ).exists()
             if subscribed:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             Subscribe.objects.get_or_create(
                 user=subscriber,
-                subscribing=subscribing
+                author=subscribing
             )
             serializer = SubscribeSerializer(
                 context=self.get_serializer_context()
@@ -59,7 +62,7 @@ class UserViewSet(djoser.views.UserViewSet):
         if request.method == 'DELETE':
             deleted, _ = Subscribe.objects.filter(
                 user=subscriber,
-                subscribing=subscribing,
+                author=subscribing,
             ).delete()
             if deleted == 0:
                 return Response(status=status.HTTP_304_NOT_MODIFIED)
@@ -75,19 +78,13 @@ class UserViewSet(djoser.views.UserViewSet):
     def subscriptions(self, request):
         current_user = request.user
         followed_list = User.objects.filter(subscribing__user=current_user)
-        paginator = PageNumberPagination()
-        paginator.page_size_query_param = 'limit'
-        authors = paginator.paginate_queryset(
-            followed_list,
-            request=request
+        authors = self.paginate_queryset(followed_list)
+        serializer = SubscribeSerializer(
+            authors,
+            many=True,
+            context={'request':request}
         )
-        serializer = ListSerializer(
-            child=SubscribeSerializer(),
-            context=self.get_serializer_context()
-        )
-        return paginator.get_paginated_response(
-            serializer.to_representation(authors)
-        )
+        return self.get_paginated_response(serializer.data)
 
 
 class TokenObtainView(TokenObtainPairView):

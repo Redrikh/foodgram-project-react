@@ -11,5 +11,5 @@ class IsSubscribedMixin(Serializer):
         if request is None or request.user.is_anonymous:
             return False
         return Subscribe.objects.filter(
-            subscribing=data, user=self.context.get('request').user
+            author=data, user=request.user
         ).exists()

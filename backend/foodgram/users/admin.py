@@ -36,9 +36,9 @@ class UsersAdmin(UserAdmin):
 
 
 class FollowsAdmin(admin.ModelAdmin):
-    list_display = ('user', 'subscribing')
-    list_filter = ('user', 'subscribing')
-    search_fields = ('user', 'subscribing')
+    list_display = ('user', 'author')
+    list_filter = ('user', 'author')
+    search_fields = ('user', 'author')
     empty_value_display = "-пусто-"
 
 
