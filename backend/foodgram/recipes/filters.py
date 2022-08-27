@@ -1,7 +1,16 @@
+from dataclasses import field
 from django_filters import rest_framework as filters
 
-from .models import Recipe, Tag
+from .models import Recipe, Tag, Ingredient
 
+
+class IngredientFilter(filters.FilterSet):
+    """Filter fo ingredients"""
+    name=filters.CharFilter(field_name='name', lookup_expr='startswith')
+
+    class Meta:
+        model = Ingredient
+        fields = ('name',)
 
 class RecipeFilter(filters.FilterSet):
     """Фильтр для рецептов."""

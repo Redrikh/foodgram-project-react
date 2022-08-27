@@ -2,13 +2,14 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
 
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 from .models import FavoriteRecipe, Ingredient, Recipe, ShoppingCart, Tag
 from .permissions import AuthorOrReadOnly
 from .serializers import (
@@ -27,6 +28,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_class = RecipeFilter
     serializer_class = RecipeSerializer
     permission_classes = [AuthorOrReadOnly]
+    pagination_class = LimitOffsetPagination
 
     @action(
         detail=True,
@@ -107,8 +109,7 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('^name',)
+    filter_class = IngredientFilter
 
 
 class TagsViewSet(viewsets.ModelViewSet):
