@@ -268,10 +268,18 @@ class SubscribeSerializer(serializers.ModelSerializer, IsSubscribedMixin):
         return Recipe.objects.filter(author=data).count()
 
     def get_recipes(self, data):
-        recipes_limit = self.context.get('request').GET.get('recipes_limit')
-        recipes = (
-            data.recipes.all()[:int(recipes_limit)]
-            if recipes_limit else data.recipes
-        )
-        serializer = serializers.ListSerializer(child=RecipeSerializer())
-        return serializer.to_representation(recipes)
+        request = self.context.get('request')
+        if request.GET.get('recipes_limit'):
+            recipes_limit = int(request.GET.get('recipes_limit'))
+            queryset = Recipe.objects.filter(
+                author__id=data.id
+            ).order_by('id')[:recipes_limit]
+        else:
+            queryset = Recipe.objects.filter(author__id=data.id).order_by('id')
+        return MiniRecipeSerializer(queryset, many=True).data
+
+
+class MiniRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time', 'image')
