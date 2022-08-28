@@ -40,6 +40,9 @@ class CreateUserSerializer(serializers.ModelSerializer):
         password = make_password(validated_data.pop('password'))
         return User.objects.create(password=password, **validated_data)
 
+    def __str__(self):
+        return self.username
+
 
 class UserSerializer(serializers.ModelSerializer, IsSubscribedMixin):
     """Сериализатор пользователя."""

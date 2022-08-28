@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from .models import Recipe, Ingredient
+from .models import Recipe, Ingredient, Tag
 
 
 class IngredientFilter(filters.FilterSet):
@@ -14,9 +14,11 @@ class IngredientFilter(filters.FilterSet):
 
 class RecipeFilter(filters.FilterSet):
     """Фильтр для рецептов."""
-    tags = filters.AllValuesMultipleFilter(
+    tags = filters.ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all(),
         field_name='tags__slug',
-        )
+        to_field_name='slug',
+    )
     author = filters.CharFilter(lookup_expr='exact')
     is_in_shopping_cart = filters.BooleanFilter(
         field_name='is_in_shopping_cart',
